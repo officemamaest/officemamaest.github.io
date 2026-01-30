@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starr Drop Full Sounds Edition</title>
+    <style>
+        body {
+            margin: 0;
+            background: radial-gradient(circle, #1a0a2e, #000);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: 'Arial Black', sans-serif;
+            overflow: hidden;
+        }
+
+        #rarity-label {
+            font-size: 3rem;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        #drop-container {
+            width: 280px;
+            height: 280px;
+            cursor: pointer;
+        }
+
+        .star {
+            width: 100%;
+            height: 100%;
+            background: #3498db;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            transition: background 0.3s, transform 0.1s;
+        }
+
+        #drop-container:active .star { transform: scale(0.9); }
+
+        .legendary-active {
+            animation: ultra-glow 0.5s infinite alternate, shake 0.1s infinite;
+        }
+
+        @keyframes ultra-glow {
+            from { filter: drop-shadow(0 0 10px gold); transform: scale(1); }
+            to { filter: drop-shadow(0 0 40px #fff700); transform: scale(1.05); }
+        }
+
+        @keyframes shake {
+            0% { transform: translate(2px, 2px); }
+            50% { transform: translate(-2px, -2px); }
+        }
+
+        .btn-restart {
+            margin-top: 40px;
+            padding: 15px 40px;
+            background: white;
+            border-radius: 50px;
+            cursor: pointer;
+            display: none;
+            font-weight: bold;
+            color: black;
+            border: none;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="rarity-label">РЕДКИЙ</div>
+
+    <div id="drop-container" onclick="nextStage()">
+        <div id="star" class="star"></div>
+    </div>
+
+    <button id="btn-restart" class="btn-restart" onclick="location.reload()">ЗАНОВО</button>
+
+    <audio id="audio-super-rare" src="super-rare-star-drop-brawl-stars.mp3" preload="auto"></audio>
+    <audio id="audio-epic" src="epic-star-drop-brawl-stars.mp3" preload="auto"></audio>
+    <audio id="audio-mythic" src="mythic-star-drop-brawl-stars.mp3" preload="auto"></audio>
+    <audio id="audio-legendary" src="legendary-star-drop-brawl-stars.mp3" preload="auto"></audio>
+
+    <script>
+        const stages = [
+            { name: "Редкий", color: "#3498db" },
+            { name: "Сверхредкий", color: "#9b59b6" },
+            { name: "Эпический", color: "#ff66cc" },
+            { name: "Мифический", color: "#e74c3c" },
+            { name: "Легендарный", color: "#f1c40f" }
+        ];
+
+        let currentStep = 0;
+        
+        // Получаем ссылки на все аудио
+        const sounds = {
+            "Сверхредкий": document.getElementById('audio-super-rare'),
+            "Эпический": document.getElementById('audio-epic'),
+            "Мифический": document.getElementById('audio-mythic'),
+            "Легендарный": document.getElementById('audio-legendary')
+        };
+
+        function nextStage() {
+            // Разблокировка аудио при первом клике для мобилок
+            if (currentStep === 0) {
+                Object.values(sounds).forEach(a => {
+                    a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => {});
+                });
+            }
+
+            if (currentStep >= stages.length - 1) return;
+
+            currentStep++;
+            const data = stages[currentStep];
+            const star = document.getElementById('star');
+            const label = document.getElementById('rarity-label');
+
+            // Обновляем визуал
+            star.style.background = data.color;
+            label.innerText = data.name.toUpperCase();
+            label.style.color = data.color;
+
+            // Воспроизводим соответствующий звук
+            const currentSound = sounds[data.name];
+            if (currentSound) {
+                currentSound.play();
+            }
+
+            // Доп. эффекты для легендарки
+            if (data.name === "Легендарный") {
+                star.classList.add('legendary-active');
+                document.getElementById('btn-restart').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
